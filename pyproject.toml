@@ -1,0 +1,34 @@
+[build-system]
+requires = ["setuptools==75.6.0", "wheel==0.45.1"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "person-engine-public-v0"
+version = "0.1.0"
+description = "Local fresh-workspace person facts, human review and JSON snapshots"
+readme = "README.md"
+requires-python = ">=3.12,<3.13"
+dependencies = ["numpy==1.26.4", "opencv-python==4.10.0.84", "onnxruntime==1.20.1", "fastapi==0.143.0", "pydantic==2.14.0", "starlette==1.7.0", "uvicorn==0.54.0"]
+license = {file = "LICENSE"}
+
+[project.optional-dependencies]
+api-test = ["httpx==0.28.1"]
+
+[project.scripts]
+person-engine-import = "person_engine.import_tool:main"
+person-engine-api = "person_engine.api.__main__:main"
+person-engine = "person_engine.public_v0.__main__:main"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+include = ["person_engine*"]
+
+[tool.public-v0.import-distributions]
+numpy = "numpy"
+cv2 = "opencv-python"
+onnxruntime = "onnxruntime"
+
+fastapi = "fastapi"
+pydantic = "pydantic"
+starlette = "starlette"
+uvicorn = "uvicorn"

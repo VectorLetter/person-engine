@@ -1,0 +1,29 @@
+services:
+  person-engine:
+    build: .
+    image: ${PERSON_ENGINE_IMAGE:-person-engine:local}
+    # Matching the operator's UID/GID supports Linux bind mounts without root.
+    user: "${PERSON_ENGINE_UID:-10001}:${PERSON_ENGINE_GID:-10001}"
+    ports:
+      - "127.0.0.1:${PERSON_ENGINE_PORT:-8000}:8000"
+    environment:
+      PERSON_ENGINE_HOME: /data/person-engine
+      PERSON_ENGINE_PHOTO_ROOT: /media/photos
+      PERSON_ENGINE_MODEL_ROOT: /models
+      PERSON_ENGINE_PROVIDER: ${PERSON_ENGINE_PROVIDER:-real}
+      PERSON_ENGINE_HOST: 0.0.0.0
+      PERSON_ENGINE_PORT: "8000"
+    volumes:
+      - "${PERSON_ENGINE_WORKSPACE_PATH:?Set workspace path}:/data/person-engine:rw"
+      - "${PERSON_ENGINE_PHOTO_PATH:?Set photo path}:/media/photos:ro"
+      - "${PERSON_ENGINE_MODEL_PATH:?Set model path}:/models:ro"
+    read_only: true
+    cap_drop: [ALL]
+    security_opt: [no-new-privileges:true]
+    stop_grace_period: 30s
+    healthcheck:
+      test: [CMD, python, -c, "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8000/health', timeout=2).close()"]
+      interval: 10s
+      timeout: 3s
+      start_period: 20s
+      retries: 3
