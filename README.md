@@ -4,11 +4,68 @@
 
 **Experimental Developer Preview — Public V0** · package version **0.1.0**
 
-Person Engine is a local engine for human-reviewed person facts in photo
-collections. It provides a Python library, a local FastAPI service and versioned
-JSON snapshots. Detection and matching propose candidates; a human review/apply
-step creates identity facts. It is not a finished photo manager or an autonomous
-identity recognizer.
+**A local engine for organizing people in photos: suggest which faces belong to the same person, let a human confirm, and make the results available to photo apps.**
+
+Suppose you have a collection of family photos and want to find the ones with Mom.
+With models configured, Person Engine detects faces and suggests groups or matches
+that may refer to the same person. You confirm, correct or ignore those suggestions
+through an integrating app or the developer API. The engine saves the confirmed
+results so the app can show photos by person.
+
+## Who is it for today?
+
+**Developers** adding people-related features to photo apps and organizing tools.
+This repository provides a Python library, a local API and exportable results.
+Developers can call it directly or integrate it into an application. The application
+needs to provide the photo browser, review screens and search interface; there is
+no ready-made, one-click photo-app plugin.
+
+**This is an experimental developer preview.** Real-photo use requires configuring
+external models. Real-model recognition quality, calibration and real-photo
+production use have not been validated. The quickstart below uses synthetic data
+to verify service workflows only.
+
+## How does it work?
+
+The engine proposes; a human confirms before results become saved person identities.
+
+```mermaid
+flowchart TD
+    A["Local JPEG/PNG photos"] --> B["YuNet: find faces and landmarks"]
+    B --> C["Align faces, then extract features with AuraFace"]
+    C --> D["Engine compares features and suggests groups or matches"]
+    D --> E["You confirm, correct or ignore through an app or API"]
+    E --> F["Save human-confirmed person results"]
+    F --> G["Photo apps read results through the API or exports"]
+```
+
+Face grouping (technically, *face clustering*) puts faces that may belong to the
+same person together; it does not tell you that person's name. The engine can also
+suggest identity matches against existing person records. A machine suggestion
+does not automatically become a confirmed identity.
+
+### Which models does it use?
+
+| Component | Role |
+|---|---|
+| **YuNet** | Finds face locations and landmarks in a photo. |
+| **AuraFace** | Turns an aligned face into numerical features for the engine to compare. |
+| **Person Engine** | Organizes match/group suggestions and human decisions, saves results and makes them available to other apps. |
+
+The integrated real-model route is **YuNet + AuraFace**. Users supply their own
+model files; this repository includes no weights and does not download them
+automatically. AuraFace weight provenance and redistribution permission remain
+unverified; see the [external model policy](models/README.md).
+
+### What could you build with it?
+
+These are possible application directions for developers, **not bundled products
+or existing integrations**:
+
+- **Personal or family photo apps**: browse photos by human-confirmed person.
+- **Desktop photo organizers**: assist with person labels and review/correct face groups.
+- **Local photo-selection tools for photographers**: filter photos by confirmed person.
+- **Home NAS photo apps**: add people-related organization, with runtime adaptation and authentication/access controls provided by the application. The current engine service is for localhost, single-user use only.
 
 ## Capabilities and boundaries
 
